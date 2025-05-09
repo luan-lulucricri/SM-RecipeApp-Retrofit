@@ -25,7 +25,7 @@ import coil.compose.rememberAsyncImagePainter
 @Composable
 fun RecipeScreen(modifier: Modifier = Modifier) {
     val recipeViewModel: MainViewModel = viewModel()
-    val viewstate by recipeViewModel.categoriesState
+    val viewstate by recipeViewModel.catState
     Box(modifier = Modifier.fillMaxSize()) {
         when {
             viewstate.loading -> {
@@ -37,46 +37,43 @@ fun RecipeScreen(modifier: Modifier = Modifier) {
             }
 
             else -> {
-                CategoryScreen(categories = viewstate.list)
+                CatScreen(cats = viewstate.list)
             }
         }
     }
 }
 
 @Composable
-fun CategoryScreen(categories: List<Category>) {
+fun CatScreen(cats: List<Cat>) {
     LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
-        items(categories) { category ->
-            CategoryItem(category = category)
+        items(cats) { cat ->
+            CatItem(cat = cat)
         }
     }
 }
 
 // How each Items looks like
 @Composable
-fun CategoryItem(category: Category) {
+fun CatItem(cat: Cat) {
     Column(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
-    )
-    {
+    ) {
         Image(
-            painter = rememberAsyncImagePainter(category.strCategoryThumb),
-            contentDescription = null,
+            painter = rememberAsyncImagePainter(cat.url),
+            contentDescription = "Cat image",
             modifier = Modifier
                 .fillMaxSize()
                 .aspectRatio(1f)
         )
 
-
         Text(
-            text = category.strCategory,
+            text = "Cat ID: ${cat.id}",
             color = Color.Black,
             style = TextStyle(fontWeight = FontWeight.Bold),
             modifier = Modifier.padding(top = 4.dp)
         )
     }
 }
-

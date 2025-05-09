@@ -9,25 +9,25 @@ import java.lang.Exception
 
 class MainViewModel : ViewModel() {
 
-    private val _categoryState = mutableStateOf(RecipeState())
-    val categoriesState: State<RecipeState> = _categoryState
+    private val _catState = mutableStateOf(RecipeState())
+    val catState: State<RecipeState> = _catState
 
     init {
-        fetchCategories()
+        fetchCats()
     }
 
-    private fun fetchCategories() {
+    private fun fetchCats() {
         viewModelScope.launch {
             try {
-                val response = recipeService.getCategories()
-                _categoryState.value = _categoryState.value.copy(
-                    list = response.categories,
+                val response = recipeService.getCats()
+                _catState.value = _catState.value.copy(
+                    list = response,
                     loading = false,
                     error = null
                 )
 
             } catch (e: Exception) {
-                _categoryState.value = _categoryState.value.copy(
+                _catState.value = _catState.value.copy(
                     loading = false,
                     error = "Error fetching Categories ${e.message}"
                 )
@@ -37,7 +37,7 @@ class MainViewModel : ViewModel() {
 
     data class RecipeState(
         val loading: Boolean = true,
-        val list: List<Category> = emptyList(),
+        val list: List<Cat> = emptyList(),
         val error: String? = null
     )
 
