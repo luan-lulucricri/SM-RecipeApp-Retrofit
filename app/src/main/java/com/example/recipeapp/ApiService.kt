@@ -13,6 +13,9 @@ val recipeService = retrofit.create(ApiService::class.java)
 
 interface ApiService {
     @GET("images/search")
-    suspend fun getCats(@Query("limit") limit: Int = 10): CatResponse
-
+    suspend fun getCats(
+        @Query("limit") limit: Int = 20,
+        @Query("has_breeds") has_breeds: Int = 1,
+        @Query("api_key") apiKey: String = "live_wYi9iC9n7ISWCwmc6vdYhud77iSxrIjrQkFiefv69ovKte0M9qImyaGAxJgWomjf"
+    ): CatResponse
 }
