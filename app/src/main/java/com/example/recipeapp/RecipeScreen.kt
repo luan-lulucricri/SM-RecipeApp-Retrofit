@@ -14,45 +14,37 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.navigation.NavHostController
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import android.net.Uri
+import com.google.gson.Gson
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 
 @Composable
-fun RecipeScreen(modifier: Modifier = Modifier) {
+fun RecipeScreen(navController: NavHostController, modifier: Modifier = Modifier) {
     val recipeViewModel: MainViewModel = viewModel()
     val viewstate by recipeViewModel.catState
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(Color(0xFFFFF8F0))) { // cor de fundo suave
-
+    Box(modifier = Modifier.fillMaxSize().background(Color(0xFFFFF8F0))) {
         when {
-            viewstate.loading -> {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
-
-            viewstate.error != null -> {
-                Text(
-                    text = "😿 Oops! Algo deu errado...",
-                    color = Color.Red,
-                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Medium),
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-
-            else -> {
-                CatScreen(cats = viewstate.list)
-            }
+            viewstate.loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            viewstate.error != null -> Text(
+                text = "😿 Oops! Algo deu errado...",
+                color = Color.Red,
+                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Medium),
+                modifier = Modifier.align(Alignment.Center)
+            )
+            else -> CatScreen(viewstate.list, navController)
         }
     }
 }
 
 @Composable
-fun CatScreen(cats: List<Cat>) {
+fun CatScreen(cats: List<Cat>, navController: NavHostController) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier.fillMaxSize(),
@@ -61,14 +53,19 @@ fun CatScreen(cats: List<Cat>) {
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(cats) { cat ->
-            CatItem(cat = cat)
+            CatItem(cat = cat, onClick = {
+                val catJson = Uri.encode(Gson().toJson(cat))
+                navController.navigate("detail/$catJson")
+            })
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CatItem(cat: Cat) {
+fun CatItem(cat: Cat, onClick: () -> Unit) {
     Card(
+        onClick = onClick,
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         modifier = Modifier
@@ -92,22 +89,11 @@ fun CatItem(cat: Cat) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text(
-                text = "\uD83D\uDE38 Name: ${cat.breeds.get(0).name}",
-                style = TextStyle(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 12.sp,
-                    color = Color(0xFF333333)
-                )
-            )
-            Text(
-                text = "\uD83D\uDE3E Temperament: ${cat.breeds.get(0).temperament}",
-                style = TextStyle(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 12.sp,
-                    color = Color(0xFF333333)
-                )
-            )
+            if (cat.breeds.isNotEmpty()) {
+                Text("🐱 Name: ${cat.breeds[0].name}", fontSize = 12.sp)
+                Text("😺 Temperament: ${cat.breeds[0].temperament}", fontSize = 12.sp)
+            }
         }
     }
 }
+
